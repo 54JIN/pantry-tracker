@@ -6,6 +6,7 @@ import { Box, Button, Modal, Stack, TextField, Typography } from '@mui/material'
 import { collection, deleteDoc, doc, getDocs, query, getDoc, setDoc } from 'firebase/firestore'
 
 export default function Home() {
+  const [searchBar, setSearchBar] = useState('')
   const [inventory, setInventory] = useState([])
   const [open, setOpen] = useState(false)
   const [itemName, setItemName] = useState('')
@@ -20,7 +21,15 @@ export default function Home() {
         ...doc.data(),
       })
     })
-    setInventory(inventoryList)
+    inventoryList
+
+    let result = []
+      for(let i = 0; i < inventoryList.length; i++) {
+        if(inventoryList[i].name.includes(searchBar)) {
+          result.push(inventoryList[i])
+      }
+    }
+    setInventory(result)
   }
 
   const addItem = async (item) => {
@@ -35,6 +44,19 @@ export default function Home() {
     }
 
     await updateInventory()
+  }
+
+  const handleChange = async (e) => {
+    const {value} = e.target
+
+    setSearchBar(value)
+    if(value === ''){
+      console.log('Inside')
+      await updateInventory()
+    } else {
+      console.log('Outside')
+      await updateInventory()
+    }
   }
   
   const removeItem = async (item) => {
@@ -113,6 +135,9 @@ export default function Home() {
           </Stack>
         </Box>
       </Modal>
+      <div>
+        <input value={searchBar} onChange={handleChange}/>
+      </div>
       <Button
         variant="contained"
         onClick={() => {
